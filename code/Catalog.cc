@@ -11,7 +11,7 @@ using namespace std;
 
 sqlite3 *db;
 string tName = NULL;
-int no_tables = NULL;
+int no_tables = 0;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
