@@ -11,6 +11,7 @@ using namespace std;
 
 sqlite3 *db;
 string tName = NULL;
+int no_tables = NULL;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
@@ -49,10 +50,16 @@ bool Catalog::Save() {
 
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 
+int i;
+_noTuples = 0;
+for(i = 0; i < no_tables; i++){
 	//First check if table name matches
 	if(_table == tName)
-		return true;
+		_noTuples++;
 	else return false;
+}
+return true;
+
 }
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
@@ -76,10 +83,15 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
 
+int i;
+_noDistinct = 0;
+	for(i = 0; i < no_tables; i++){
 		//First check if table name matches
 		if(_table == tName)
-			return true;
+			_noDistinct++;
 		else return false;
+		}
+		return true;
 }
 void Catalog::SetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
