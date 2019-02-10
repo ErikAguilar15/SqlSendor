@@ -6,8 +6,21 @@
 
 using namespace std;
 
+global sqlite3 *db;
 
 Catalog::Catalog(string& _fileName) {
+		char *errMessage = 0;
+		int rc;
+
+		//Open connection to our database
+		rc = sqlite3_open("catalog.sqlite", &db);
+
+		if (rc) {
+			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		}
+		else {
+			fprintf(stderr, "Opened database successfully\n");
+		}
 }
 
 Catalog::~Catalog() {
