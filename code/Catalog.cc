@@ -23,7 +23,7 @@ Catalog::Catalog(string& _fileName) {
 		int rc;
 
 		//Open connection to our database
-		rc = sqlite3_open(_filename, &db);
+		rc = sqlite3_open(_fileName, &db);
 
 		if (rc) {
 			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
@@ -103,6 +103,7 @@ bool Catalog::GetSchema(string& _table, Schema& _schema) {
 bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
 
+		int rc;
 		char *sql;
 		char *zErrMsg = 0;
 		//Schema table = new Schema();
