@@ -24,6 +24,7 @@ Catalog::Catalog(string& _fileName) {
 }
 
 Catalog::~Catalog() {
+		sqlite3_close(db);
 }
 
 bool Catalog::Save() {
