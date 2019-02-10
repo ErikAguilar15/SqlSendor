@@ -8,6 +8,15 @@ using namespace std;
 
 global sqlite3 *db;
 
+static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+		int i;
+		for(i = 0; i<argc; i++) {
+		  printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+		}
+		printf("\n");
+		return 0;
+}
+
 Catalog::Catalog(string& _fileName) {
 		char *errMessage = 0;
 		int rc;
@@ -83,7 +92,7 @@ bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
 }
 
 bool Catalog::GetSchema(string& _table, Schema& _schema) {
-	
+
 	//First check if table name matches
 	if(_table == tName)
 		return true;
@@ -92,14 +101,14 @@ bool Catalog::GetSchema(string& _table, Schema& _schema) {
 
 bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
-<<<<<<< HEAD
 
+		char *sql;
+		char *zErrMsg = 0;
+		Schema table = new Schema();
 
-	return true;
-=======
-		EfficientMap table = new EfficientMap();
+		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat'";
+
 		return true;
->>>>>>> 78dc045b567e31baee07559980ff0525c1a18ca0
 }
 
 bool Catalog::DropTable(string& _table) {
