@@ -7,6 +7,7 @@
 using namespace std;
 
 sqlite3 *db;
+string tName = NULL;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
