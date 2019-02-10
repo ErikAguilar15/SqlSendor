@@ -9,6 +9,10 @@ using namespace std;
 sqlite3 *db;
 string tName = NULL;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 99bcd9b3d781937b9a0314151d2e1c2f3d422c78
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
 		for(i = 0; i<argc; i++) {
