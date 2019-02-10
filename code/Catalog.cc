@@ -1,4 +1,7 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sqlite3.h>
 #include "sqlite3.h"
 
 #include "Schema.h"
@@ -21,9 +24,11 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 Catalog::Catalog(string& _fileName) {
 		char *errMessage = 0;
 		int rc;
+		char file[_fileName.length()];
+		strcpy(file, _fileName.c_str());
 
 		//Open connection to our database
-		rc = sqlite3_open(_fileName, &db);
+		rc = sqlite3_open(file, &db);
 
 		if (rc) {
 			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
@@ -104,13 +109,15 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
 
 		int rc;
-		char *sql;
+		string sql;
 		char *zErrMsg = 0;
 		//Schema table = new Schema();
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
 
-		rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 
 		if( rc != SQLITE_OK ){
 		  fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -121,8 +128,10 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 
 		for (int i = 0; i < _attributes.size(); i++) {
 			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[i] + "', 0)";
+			char sql2[sql.length()];
+			strcpy(sql2, sql.c_str());
 
-			rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+			rc = sqlite3_exec(db, sql2, callback, 0, &zErrMsg);
 
 			if( rc != SQLITE_OK ){
 			  fprintf(stderr, "SQL error: %s\n", zErrMsg);
