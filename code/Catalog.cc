@@ -3,6 +3,7 @@
 
 #include "Schema.h"
 #include "Catalog.h"
+#include "EfficientMap.h"
 
 using namespace std;
 
