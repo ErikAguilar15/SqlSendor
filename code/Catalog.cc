@@ -14,7 +14,7 @@ Catalog::Catalog(string& _fileName) {
 		int rc;
 
 		//Open connection to our database
-		rc = sqlite3_open("catalog.sqlite", &db);
+		rc = sqlite3_open(_filename, &db);
 
 		if (rc) {
 			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
@@ -66,7 +66,8 @@ bool Catalog::GetSchema(string& _table, Schema& _schema) {
 
 bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
-	return true;
+		EfficientMap table = new EfficientMap();
+		return true;
 }
 
 bool Catalog::DropTable(string& _table) {
