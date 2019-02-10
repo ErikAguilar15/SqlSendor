@@ -6,8 +6,12 @@
 
 using namespace std;
 
+<<<<<<< HEAD
 sqlite3 *db;
 string tName = NULL;
+=======
+global sqlite3 *db;
+>>>>>>> 41cb66a8a62e56f5885f957ed2dcac9c3236341f
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
@@ -104,7 +108,6 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
 
 		char *sql;
-		int rc;
 		char *zErrMsg = 0;
 		//Schema table = new Schema();
 
