@@ -3,7 +3,6 @@
 
 #include "Schema.h"
 #include "Catalog.h"
-#include "EfficientMap.h"
 
 using namespace std;
 
@@ -25,21 +24,35 @@ Catalog::Catalog(string& _fileName) {
 }
 
 Catalog::~Catalog() {
+
 		sqlite3_close(db);
 }
 
 bool Catalog::Save() {
+
 }
 
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
-	return true;
+
+	//First check if table name matches
+	if(_table == tName)
+		return true;
+	else return false;
 }
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
+
+
+
 }
 
 bool Catalog::GetDataFile(string& _table, string& _path) {
-	return true;
+
+	//First check if table name matches
+	if(_table == tName)
+		return true;
+	else return false;
+
 }
 
 void Catalog::SetDataFile(string& _table, string& _path) {
@@ -47,7 +60,11 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 
 bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
-	return true;
+
+		//First check if table name matches
+		if(_table == tName)
+			return true;
+		else return false;
 }
 void Catalog::SetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
@@ -57,15 +74,26 @@ void Catalog::GetTables(vector<string>& _tables) {
 }
 
 bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
-	return true;
+
+	//First check if table name matches
+	if(_table == tName)
+		return true;
+	else return false;
+
 }
 
 bool Catalog::GetSchema(string& _table, Schema& _schema) {
-	return true;
+	
+	//First check if table name matches
+	if(_table == tName)
+		return true;
+	else return false;
 }
 
 bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
+
+
 	return true;
 }
 
