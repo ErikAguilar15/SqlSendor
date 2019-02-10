@@ -103,6 +103,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 	vector<string>& _attributeTypes) {
 
 		char *sql;
+		int rc;
 		char *zErrMsg = 0;
 		//Schema table = new Schema();
 
