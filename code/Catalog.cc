@@ -6,12 +6,11 @@
 
 using namespace std;
 
-<<<<<<< HEAD
 sqlite3 *db;
 string tName = NULL;
-=======
+
 global sqlite3 *db;
->>>>>>> 41cb66a8a62e56f5885f957ed2dcac9c3236341f
+
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
