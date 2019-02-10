@@ -108,6 +108,15 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat'";
 
+		rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+
+		if( rc != SQLITE_OK ){
+		  fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		  sqlite3_free(zErrMsg);
+		} else {
+		  fprintf(stdout, "Records created successfully\n");
+		}
+
 		return true;
 }
 
