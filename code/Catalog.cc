@@ -104,9 +104,9 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 
 		char *sql;
 		char *zErrMsg = 0;
-		Schema table = new Schema();
+		//Schema table = new Schema();
 
-		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat'";
+		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
 
 		rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 
@@ -114,7 +114,20 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		  fprintf(stderr, "SQL error: %s\n", zErrMsg);
 		  sqlite3_free(zErrMsg);
 		} else {
-		  fprintf(stdout, "Records created successfully\n");
+		  fprintf(stdout, "Table created successfully\n");
+		}
+
+		for (int i = 0; i < _attributes.size(); i++) {
+			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[0] + "', 0)";
+
+			rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+
+			if( rc != SQLITE_OK ){
+			  fprintf(stderr, "SQL error: %s\n", zErrMsg);
+			  sqlite3_free(zErrMsg);
+			} else {
+			  fprintf(stdout, "Attribute created successfully\n");
+			}
 		}
 
 		return true;
