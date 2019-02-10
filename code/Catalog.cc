@@ -22,7 +22,7 @@ Catalog::Catalog(string& _fileName) {
 		int rc;
 
 		//Open connection to our database
-		rc = sqlite3_open(_fileName, &db);
+		rc = sqlite3_open(_filename, &db);
 
 		if (rc) {
 			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
