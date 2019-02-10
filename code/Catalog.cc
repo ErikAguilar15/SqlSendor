@@ -118,7 +118,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		}
 
 		for (int i = 0; i < _attributes.size(); i++) {
-			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[0] + "', 0)";
+			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[i] + "', 0)";
 
 			rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 
