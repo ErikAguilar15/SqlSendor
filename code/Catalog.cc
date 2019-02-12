@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
@@ -6,10 +7,12 @@
 
 #include "Schema.h"
 #include "Catalog.h"
+#include "EfficientMap.h"
 
 using namespace std;
 
 sqlite3 *db;
+EfficientMap<string, Schema> tables();
 string tName = NULL;
 int no_tables = 0;
 
@@ -45,7 +48,7 @@ Catalog::~Catalog() {
 }
 
 bool Catalog::Save() {
-
+		return true;
 }
 
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
@@ -123,7 +126,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		int rc;
 		string sql;
 		char *zErrMsg = 0;
-		//Schema table = new Schema();
+		Schema *table = new Schema();
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
 		char sql1[sql.length()];
