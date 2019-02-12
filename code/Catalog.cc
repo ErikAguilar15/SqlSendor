@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
-#include "sqlite3.h"
 
 #include "Schema.h"
 #include "Catalog.h"
@@ -12,7 +11,7 @@
 using namespace std;
 
 sqlite3 *db;
-EfficientMap<string, Schema> tables();
+EfficientMap<string, Schema> tables;
 string tName = NULL;
 int no_tables = 0;
 
@@ -125,8 +124,17 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 
 		int rc;
 		string sql;
+		vector<unsigned int> distincts;
 		char *zErrMsg = 0;
-		Schema *table = new Schema();
+
+		for (int i = 0; i < _attributes.size(); i++) {
+			distincts.push_back(0);
+		}
+		//if (tables.IsThere(_table) == 1){
+
+		//}
+
+		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
 		char sql1[sql.length()];
