@@ -41,6 +41,8 @@ Catalog::Catalog(string& _fileName) {
 		else {
 			fprintf(stderr, "Opened database successfully\n");
 		}
+
+		
 }
 
 Catalog::~Catalog() {
@@ -173,7 +175,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		}
 
 		for (int i = 0; i < _attributes.size(); i++) {
-			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[i] + "', 0)";
+			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[i] + "', 0, '" + _table + ")";
 			char sql2[sql.length()];
 			strcpy(sql2, sql.c_str());
 
