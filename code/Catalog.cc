@@ -187,20 +187,21 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 }
 
 bool Catalog::DropTable(string& _table) {
-	
+
 	int i;
 	string deletedTable;
 	Schema deletedData;
+	string sql;
 
 	Schema schema = tables.Find(_table);
 	vector<Attribute> atts = schema.GetAtts();
 	for(i = 0; i < atts.size(); i++)
-		sql = ("DELETE FROM attribute WHERE name = " + "'" + atts[i] + "'");
+		//sql = "DELETE FROM attribute WHERE name = '" + atts[i] + "'";
 
 
 	if(tables.IsThere(_table) == 1){
 		Schema schema = tables.Find(_table);
-	sql  = ("DELETE FROM table WHERE " + "name = " + "'" + _table + "'");
+	//sql  = "DELETE FROM table WHERE name = '" + _table + "'";
 	tables.Remove(_table, deletedTable, deletedData);
 }
 return true;
