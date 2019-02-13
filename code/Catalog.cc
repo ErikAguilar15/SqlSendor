@@ -50,12 +50,10 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-<<<<<<< HEAD
+
 		sql = "SELECT * FROM table";
 		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 
-=======
->>>>>>> 69f953cd52f18e33029f1bacdaf0dafb847bd014
 
 }
 
