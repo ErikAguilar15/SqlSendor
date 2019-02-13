@@ -49,7 +49,7 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-		
+
 }
 
 Catalog::~Catalog() {
@@ -68,13 +68,13 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		int count = 0;
 		char *zErrMsg = 0;
 
-		rc = sqlite3_exec(db, "SELECT COUNT(*) FROM " + _table , callbackCount, &count, &zErrMsg);
-
+		rc = sqlite3_exec(db, "SELECT numTuples FROM " + _table, callbackCount, &count, &zErrMsg);
 		_noTuples = count;
 
 		if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
+				return false;
     } else return true;
 
 
@@ -92,9 +92,20 @@ return true;
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 
+//UPDATE the numTuples
+int rc;
+char *zErrMsg = 0;
 int i;
 cin >> i;
 i = _noTuples;
+
+rc = sqlite3_exec(db, "UPDATE " + _table + "SET numTuples = " + _noTuples, callbackCount, &count, &zErrMsg);
+
+if (rc != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return false;
+} else return true;
 
 }
 
