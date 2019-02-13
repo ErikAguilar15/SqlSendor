@@ -7,7 +7,7 @@
 
 #include "Schema.h"
 #include "Catalog.h"
-#include "EfficientMap.h"
+#include "EfficientMap.cc"
 
 using namespace std;
 

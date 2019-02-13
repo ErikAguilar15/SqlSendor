@@ -1,4 +1,4 @@
-CC = g++ -g -O0 -Wno-deprecated
+CC = g++ -g -O0 -Wno-deprecated -lstdc++
 
 tag = -i
 
@@ -7,7 +7,7 @@ ifdef linux
 endif
 
 main.out:	Schema.o EfficientMap.o Catalog.o main.o
-	$(CC) -o main.out main.o Catalog.o EfficientMap.o Schema.o -lsqlite3 -lstdc++
+	$(CC) -o main.out main.o Catalog.o EfficientMap.o Schema.o -lsqlite3
 
 main.o:	main.cc
 	$(CC) -c main.cc
