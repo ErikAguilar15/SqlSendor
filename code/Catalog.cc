@@ -50,9 +50,12 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
+<<<<<<< HEAD
 		sql = "SELECT * FROM table";
 		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 
+=======
+>>>>>>> 69f953cd52f18e33029f1bacdaf0dafb847bd014
 
 }
 
@@ -72,13 +75,15 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		int count = 0;
 		char *zErrMsg = 0;
 
-		rc = sqlite3_exec(db, "SELECT COUNT(*) FROM " + _table , callbackCount, &count, &zErrMsg);
-
+if(tables.IsThere(_table) == 1){
+		rc = sqlite3_exec(db, "SELECT numTuples FROM " + _table, callbackCount, &count, &zErrMsg);
 		_noTuples = count;
-
+		return true;
+}else return false;
 		if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
+				return false;
     } else return true;
 
 
@@ -96,9 +101,20 @@ return true;
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 
+//UPDATE the numTuples
+int rc;
+char *zErrMsg = 0;
 int i;
 cin >> i;
 i = _noTuples;
+
+rc = sqlite3_exec(db, "UPDATE " + _table + "SET numTuples = " + _noTuples, callbackCount, &count, &zErrMsg);
+
+if (rc != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return false;
+} else return true;
 
 }
 
@@ -118,7 +134,7 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 		return true;
 	else return false;
 */
-
+}
 void Catalog::SetDataFile(string& _table, string& _path) {
 
 
@@ -129,7 +145,22 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
 
-int i;
+		int rc;
+		int count = 0;
+		char *zErrMsg = 0;
+
+if(tables.IsThere(_table) == 1){
+		rc = sqlite3_exec(db, "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + _table, callbackCount, &count, &zErrMsg);
+		_noDistinct = count;
+		return true;
+}else return false;
+		if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+				return false;
+    } else return true;
+
+/*int i;
 _noDistinct = 0;
 	for(i = 0; i < no_tables; i++){
 		//First check if table name matches
@@ -138,7 +169,9 @@ _noDistinct = 0;
 		else return false;
 		}
 		return true;
-}
+		*/
+	}
+
 void Catalog::SetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
 }
