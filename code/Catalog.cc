@@ -8,11 +8,12 @@
 #include "Schema.h"
 #include "Catalog.h"
 #include "EfficientMap.cc"
+#include "Keyify.cc"
 
 using namespace std;
 
 sqlite3 *db;
-EfficientMap<string, Schema> tables;
+EfficientMap<Keyify<string>, Schema> tables;
 string tName = NULL;
 int no_tables = 0;
 
@@ -115,10 +116,11 @@ void Catalog::GetTables(vector<string>& _tables) {
 
 bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
 
+		Keyify<string> key(_table);
 		_attributes.clear();
 		//First check if table name matches
-		if(tables.IsThere(_table) == 1){
-			Schema schema = tables.Find(_table);
+		if(tables.IsThere(key) == 1){
+			Schema schema = tables.Find(key);
 			vector<Attribute> atts = schema.GetAtts();
 			for (int i = 0; i < atts.size(); i++) {
 				_attributes.push_back(atts[i].name);
@@ -131,9 +133,10 @@ bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
 
 bool Catalog::GetSchema(string& _table, Schema& _schema) {
 
+		Keyify<string> key(_table);
 		//First check if table name matches
-		if(tables.IsThere(_table) == 1){
-			_schema = tables.Find(_table);
+		if(tables.IsThere(key) == 1){
+			_schema = tables.Find(key);
 			return true;
 		}
 		else return false;
@@ -145,14 +148,15 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		int rc;
 		string sql;
 		vector<unsigned int> distincts;
+		Keyify<string> key(_table);
 		char *zErrMsg = 0;
 
 		for (int i = 0; i < _attributes.size(); i++) {
 			distincts.push_back(0);
 		}
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
-		if (tables.IsThere(_table) != 1){
-			tables.Insert(_table, *table);
+		if (tables.IsThere(key) != 1){
+			tables.Insert(key, *table);
 		}
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
@@ -192,17 +196,18 @@ bool Catalog::DropTable(string& _table) {
 	string deletedTable;
 	Schema deletedData;
 	string sql;
+	Keyify<string> key(_table);
 
-	Schema schema = tables.Find(_table);
+	Schema schema = tables.Find(key);
 	vector<Attribute> atts = schema.GetAtts();
 	for(i = 0; i < atts.size(); i++)
 		//sql = "DELETE FROM attribute WHERE name = '" + atts[i] + "'";
 
 
-	if(tables.IsThere(_table) == 1){
-		Schema schema = tables.Find(_table);
+	if(tables.IsThere(key) == 1){
+		Schema schema = tables.Find(key);
 	//sql  = "DELETE FROM table WHERE name = '" + _table + "'";
-	tables.Remove(_table, deletedTable, deletedData);
+	//tables.Remove(_table, deletedTable, deletedData);
 }
 return true;
 }
