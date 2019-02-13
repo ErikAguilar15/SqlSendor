@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
+#include <vector>
 
 #include "Schema.h"
 #include "Catalog.h"
@@ -100,14 +101,27 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 }
 
 void Catalog::GetTables(vector<string>& _tables) {
+
+		_tables.clear();
+		for (int i = 0; i < tables.size(); i++) {
+			_tables.push_back(tables[i].Key);
+		}
+		
 }
 
 bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
 
-	//First check if table name matches
-	if(_table == tName)
-		return true;
-	else return false;
+		_attributes.clear();
+		//First check if table name matches
+		if(tables.IsThere(_table) == 1){
+			Schema schema = tables.Find(_table);
+			vector<Attribute> atts = schema.GetAtts();
+			for (int i = 0; i < atts.size(); i++) {
+				_attributes.push_back(atts[i].name);
+			}
+			return true;
+		}
+		else return false;
 
 }
 
