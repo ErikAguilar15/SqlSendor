@@ -113,10 +113,12 @@ bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
 
 bool Catalog::GetSchema(string& _table, Schema& _schema) {
 
-	//First check if table name matches
-	if(_table == tName)
-		return true;
-	else return false;
+		//First check if table name matches
+		if(tables.IsThere(_table) == 1){
+			_schema = tables.Find(_table);
+			return true;
+		}
+		else return false;
 }
 
 bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
@@ -130,11 +132,10 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		for (int i = 0; i < _attributes.size(); i++) {
 			distincts.push_back(0);
 		}
-		//if (tables.IsThere(_table) == 1){
-
-		//}
-
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
+		if (tables.IsThere(_table) != 1){
+			tables.Insert(_table, table);
+		}
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
 		char sql1[sql.length()];
