@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +23,12 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		  printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 		}
 		printf("\n");
+		return 0;
+}
+
+static int callbackCount(void *count, int argc, char **argv, char **azColName) {
+		int *c = count;
+		*c = atoi(argv[0]);
 		return 0;
 }
 
@@ -54,7 +61,21 @@ bool Catalog::Save() {
 
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 
-int i;
+		int rc;
+		int count = 0;
+		char *zErrMsg = 0;
+
+		rc = sqlite3_exec(db, "SELECT COUNT(*) FROM " + _table , callbackCount, &count, &zErrMsg);
+
+		_noTuples = count;
+
+		if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else return true;
+
+
+/*int i;
 _noTuples = 0;
 for(i = 0; i < no_tables; i++){
 	//First check if table name matches
@@ -63,25 +84,39 @@ for(i = 0; i < no_tables; i++){
 	else return false;
 }
 return true;
-
+*/
 }
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 
-
+int i;
+cin >> i;
+i = _noTuples;
 
 }
 
 bool Catalog::GetDataFile(string& _table, string& _path) {
 
 	//First check if table name matches
-	if(_table == tName)
+	if(tables.IsThere(_table) == 1){
+		Schema schema = tables.Find(_table);
+		//string path = _table + ".dat";
+		//path = _path;
+		return true;
+	} else return false;
+
+
+
+/*	if(_table == tName)
 		return true;
 	else return false;
-
-}
+*/
 
 void Catalog::SetDataFile(string& _table, string& _path) {
+
+
+	//_path = _table + ".dat";
+
 }
 
 bool Catalog::GetNoDistinct(string& _table, string& _attribute,
