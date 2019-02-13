@@ -143,7 +143,7 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 		char *zErrMsg = 0;
 
 if(tables.IsThere(_table) == 1){
-		rc = sqlite3_exec(db, "SELECT distinctVal FROM " + _attribute + "WHERE ", callbackCount, &count, &zErrMsg);
+		rc = sqlite3_exec(db, "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + _table, callbackCount, &count, &zErrMsg);
 		_noDistinct = count;
 		return true;
 }else return false;
