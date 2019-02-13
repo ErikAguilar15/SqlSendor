@@ -127,7 +127,7 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 		return true;
 	else return false;
 */
-
+}
 void Catalog::SetDataFile(string& _table, string& _path) {
 
 
@@ -138,7 +138,22 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
 
-int i;
+		int rc;
+		int count = 0;
+		char *zErrMsg = 0;
+
+if(tables.IsThere(_table) == 1){
+		rc = sqlite3_exec(db, "SELECT distinctVal FROM " + _attribute + "WHERE ", callbackCount, &count, &zErrMsg);
+		_noDistinct = count;
+		return true;
+}else return false;
+		if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+				return false;
+    } else return true;
+
+/*int i;
 _noDistinct = 0;
 	for(i = 0; i < no_tables; i++){
 		//First check if table name matches
@@ -147,7 +162,9 @@ _noDistinct = 0;
 		else return false;
 		}
 		return true;
-}
+		*/
+	}
+
 void Catalog::SetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
 }
