@@ -68,9 +68,11 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		int count = 0;
 		char *zErrMsg = 0;
 
+if(tables.IsThere(_table) == 1){
 		rc = sqlite3_exec(db, "SELECT numTuples FROM " + _table, callbackCount, &count, &zErrMsg);
 		_noTuples = count;
-
+		return true;
+}else return false;
 		if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
