@@ -36,6 +36,7 @@ static int callbackCount(void *count, int argc, char **argv, char **azColName) {
 Catalog::Catalog(string& _fileName) {
 		char *errMessage = 0;
 		int rc;
+		string sql;
 		char file[_fileName.length()];
 		strcpy(file, _fileName.c_str());
 
@@ -49,7 +50,10 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-		
+		sql = "SELECT * FROM table";
+		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
+
+
 }
 
 Catalog::~Catalog() {
