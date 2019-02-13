@@ -45,6 +45,7 @@ Catalog::Catalog(string& _fileName) {
 Catalog::~Catalog() {
 
 		sqlite3_close(db);
+
 }
 
 bool Catalog::Save() {
@@ -103,10 +104,13 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 void Catalog::GetTables(vector<string>& _tables) {
 
 		_tables.clear();
-		for (int i = 0; i < tables.size(); i++) {
-			_tables.push_back(tables[i].Key);
+		int i = 0;
+		tables.MoveToStart();
+		while (!tables.AtEnd()){
+			_tables.push_back(tables.CurrentKey());
+			tables.Advance();
 		}
-		
+
 }
 
 bool Catalog::GetAttributes(string& _table, vector<string>& _attributes) {
@@ -148,7 +152,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		}
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
 		if (tables.IsThere(_table) != 1){
-			tables.Insert(_table, table);
+			tables.Insert(_table, *table);
 		}
 
 		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
