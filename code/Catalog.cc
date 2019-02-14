@@ -300,7 +300,7 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 		char *zErrMsg = 0;
 		Keyify<string> key(_table);
 
-		string sql = "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + _table;
+		string sql = "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + "'" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
