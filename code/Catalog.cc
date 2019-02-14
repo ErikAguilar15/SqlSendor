@@ -280,7 +280,7 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 		sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
-		//string path = _table + ".dat";
+		_path = table_results[0];
 		//path = _path;
 		return true;
 	} else return false;
