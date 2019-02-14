@@ -50,9 +50,9 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-
-		sql = "SELECT * FROM table";
-		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
+		char **sql_results;
+		int row, col;
+		sqlite3_get_table(open_database, "SELECT * FROM table", &sql_results, &row, &col, errMessage);
 
 
 }
