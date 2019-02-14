@@ -302,7 +302,7 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 	char sql1[sql.length()];
 	strcpy(sql1, sql.c_str());
 
-	rc = sqlite3_exec(db, sql2, callback, 0, &zErrMsg);
+	rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 
 	if( rc != SQLITE_OK ){
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
