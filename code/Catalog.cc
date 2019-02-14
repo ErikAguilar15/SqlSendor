@@ -270,9 +270,16 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 bool Catalog::GetDataFile(string& _table, string& _path) {
 
 	Keyify<string> key(_table);
+	char **table_results;
+	char **errMessage1 = 0;
+	int row, col;
+
 	//First check if table name matches
 	if(tables.IsThere(key) == 1){
-		Schema schema = tables.Find(key);
+		string sql = "SELECT fileLoc FROM table WHERE name = '" + _table + "'";
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
+		sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
 		//string path = _table + ".dat";
 		//path = _path;
 		return true;
@@ -287,8 +294,22 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 }
 void Catalog::SetDataFile(string& _table, string& _path) {
 
+	Keyify<string> key(_table);
+	int rc;
+	char *zErrMsg = 0;
 
-	//_path = _table + ".dat";
+	string sql = "UPDATE table SET fileLoc = '" + _path + "' WHERE name = '" + _table + "'";
+	char sql1[sql.length()];
+	strcpy(sql1, sql.c_str());
+
+	rc = sqlite3_exec(db, sql2, callback, 0, &zErrMsg);
+
+	if( rc != SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	} else {
+		fprintf(stdout, "Attribute created successfully\n");
+	}
 
 }
 
