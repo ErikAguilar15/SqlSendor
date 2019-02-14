@@ -180,12 +180,16 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 		cin >> i;
 		i = _noDistinct;
 
-		rc = sqlite3_exec(db, "UPDATE " + _attribute + "SET distinctVal = " + _noDistinct, callbackCount, &count, &zErrMsg);
+		string sql = "UPDATE " + _attribute + "SET distinctVal = " + to_string(_noDistinct);
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
+
+		rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
 
 		if (rc != SQLITE_OK) {
 				fprintf(stderr, "SQL error: %s\n", zErrMsg);
 				sqlite3_free(zErrMsg);
-		} 
+		}
 }
 
 void Catalog::GetTables(vector<string>& _tables) {
