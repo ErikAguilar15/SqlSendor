@@ -81,8 +81,7 @@ if(tables.IsThere(_table) == 1){
 		if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
-				return false;
-    } else return true;
+    }
 
 
 /*int i;
@@ -111,8 +110,7 @@ rc = sqlite3_exec(db, "UPDATE " + _table + "SET numTuples = " + _noTuples, callb
 if (rc != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
-		return false;
-} else return true;
+}
 
 }
 
@@ -155,8 +153,7 @@ if(tables.IsThere(_table) == 1){
 		if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
-				return false;
-    } else return true;
+    }
 
 /*int i;
 _noDistinct = 0;
@@ -185,8 +182,7 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 		if (rc != SQLITE_OK) {
 				fprintf(stderr, "SQL error: %s\n", zErrMsg);
 				sqlite3_free(zErrMsg);
-				return false;
-		} else return true;
+		}
 }
 
 void Catalog::GetTables(vector<string>& _tables) {
