@@ -214,17 +214,19 @@ bool Catalog::Save() {
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 
 		int rc;
-		int count = 0;
+		char **table_results;
+		char **errMessage1 = 0;
+		int row, col;
 		char *zErrMsg = 0;
 		Keyify<string> key(_table);
 
-		string sql = "SELECT numTuples FROM " + _table;
+		string sql = "SELECT numTuples FROM table WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
 		if(tables.IsThere(key) == 1){
-				rc = sqlite3_exec(db, sql1, callbackCount, &count, &zErrMsg);
-				_noTuples = count;
+				sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
+				_noTuples = stoi(table_results[0]);
 				return true;
 		}else return false;
 				if (rc != SQLITE_OK) {
@@ -318,16 +320,19 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 
 		int rc;
 		int count = 0;
+		char **table_results;
 		char *zErrMsg = 0;
+		char **errMessage1 = 0;
+		int row, col;
 		Keyify<string> key(_table);
 
-		string sql = "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + "'" + _table + "'";
+		string sql = "SELECT distinctVal FROM attribute WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
 		if(tables.IsThere(key) == 1){
-				rc = sqlite3_exec(db, sql1 , callbackCount, 0, &zErrMsg);
-				_noDistinct = count;
+				sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
+				_noDistinct = stoi(table_results[0]);
 				return true;
 		}else return false;
 				if (rc != SQLITE_OK) {
@@ -357,7 +362,7 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 		cin >> i;
 		i = _noDistinct;
 
-		string sql = "UPDATE " + _attribute + "SET distinctVal = " + to_string(_noDistinct);
+		string sql = "UPDATE attribute SET distinctVal = " + to_string(_noDistinct) + "WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
