@@ -51,9 +51,9 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-		char **sql_results;
+		char **table_results;
 		int row, col;
-		sqlite3_get_table(open_database, "SELECT * FROM table", &sql_results, &row, &col, errMessage);
+		sqlite3_get_table(db, "SELECT * FROM table", &table_results, &row, &col, errMessage);
 
 
 }
