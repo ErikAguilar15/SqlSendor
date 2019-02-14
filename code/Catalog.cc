@@ -399,18 +399,28 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		Keyify<string> key(_table);
 		char *zErrMsg = 0;
 
+		//Check to make sure attributes are unique
+		vector<string> atts(_attributes);
+		sort(atts.begin(), atts.end());
+		auto it = unique( atts.begin(), atts.end() );
+		if (it == atts.end()) {
+			printf("Duplicate attributes.");
+			return false;
+		}
+
 		for (int i = 0; i < _attributes.size(); i++) {
 			distincts.push_back(0);
 		}
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
 		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
+			return true;
 		}
 		else {
 			printf("Table is already present.");
+			return false;
 		}
 
-		return true;
 }
 
 bool Catalog::DropTable(string& _table) {
@@ -421,9 +431,11 @@ bool Catalog::DropTable(string& _table) {
 
 		if(tables.IsThere(key) == 1){
 			deletedTables.Insert(key, schema);
+			return true;
 		}
-		return true;
-		}
+		else return false
+
+}
 
 ostream& operator<<(ostream& _os, Catalog& _c) {
 	return _os;
