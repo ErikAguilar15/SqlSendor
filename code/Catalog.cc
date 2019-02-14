@@ -187,11 +187,7 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 				fprintf(stderr, "SQL error: %s\n", zErrMsg);
 				sqlite3_free(zErrMsg);
 		}
-<<<<<<< HEAD
-}
-=======
-		} 
->>>>>>> 97a8ce5f60a17ddda4c8ca2244911674bbbc458c
+} 
 
 void Catalog::GetTables(vector<string>& _tables) {
 
