@@ -15,6 +15,8 @@ using namespace std;
 
 sqlite3 *db;
 EfficientMap<Keyify<string>, Schema> tables;
+EfficientMap<Keyify<string>, Schema> insertedTables;
+EfficientMap<Keyify<string>, Schema> deletedTables;
 string tName = NULL;
 int no_tables = 0;
 
@@ -103,7 +105,89 @@ Catalog::~Catalog() {
 }
 
 bool Catalog::Save() {
+
+		int rc;
+		string sql;
+		char *zErrMsg = 0;
+
+		//Saving inserted Tables
+		insertedTables.MoveToStart();
+		while(!insertedTables.AtEnd()){
+			string tempStr = insertedTables.CurrentKey();
+			Schema tempSchema = insertedTables.CurrentData();
+			vector<Attribute> atts = tempSchema.GetAtts();
+			vector<string> attributes, attributeTypes;
+			vector<unsigned int> distincts;
+
+			if (tables.IsThere(insertedTables.CurrentKey()) != 1){
+				sql = "INSERT INTO table VALUES('" + tempStr + "', 0, '" + tempStr + ".dat')";
+				char sql1[sql.length()];
+				strcpy(sql1, sql.c_str());
+
+				rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
+
+				if( rc != SQLITE_OK ){
+				  fprintf(stderr, "SQL error: %s\n", zErrMsg);
+				  sqlite3_free(zErrMsg);
+				} else {
+				  fprintf(stdout, "Table created successfully\n");
+				}
+
+				for (int i = 0; i < atts.size(); i++) {
+					attributes.push_back(atts[i].name);
+					if (atts[i].type == Integer) {
+						attributeTypes.push_back("INTEGER");
+					}
+					else if (atts[i].type == Float) {
+						attributeTypes.push_back("FLOAT");
+					}
+					else attributeTypes.push_back("STRING");
+					distincts.push_back(atts[i].noDistinct);
+				}
+
+				for (int i = 0; i < attributes.size(); i++) {
+					sql = "INSERT INTO attribute VALUES('" + attributes[i] + "', '" + attributeTypes[i] + "', " + "'" + to_string(distincts[i]) + "', '" + tempStr + "')";
+					char sql2[sql.length()];
+					strcpy(sql2, sql.c_str());
+
+					rc = sqlite3_exec(db, sql2, callback, 0, &zErrMsg);
+
+					if( rc != SQLITE_OK ){
+					  fprintf(stderr, "SQL error: %s\n", zErrMsg);
+					  sqlite3_free(zErrMsg);
+					} else {
+					  fprintf(stdout, "Attribute created successfully\n");
+					}
+				}
+			}
+			else {
+				printf("Table is already present in database, therefore can't be saved.");
+			}
+		}
+		tables.SuckUp(insertedTables);
+
+		//Saving removed Tables
+		deletedTables.MoveToStart();
+		while(!deletedTables.AtEnd()) {
+			Schema deletedData;
+			string tempStr = deletedTables.CurrentKey();
+			Schema tempSchema = deletedTables.CurrentData();
+			Keyify<string> deletedTable(tempStr);
+			vector<Attribute> atts = tempSchema.GetAtts();
+			for(int i = 0; i < atts.size(); i++)
+				sql = "DELETE FROM attribute WHERE name = '" + atts[i].name + "'";
+
+
+			if(tables.IsThere(deletedTables.CurrentKey()) == 1){
+				Schema schema = tables.Find(deletedTables.CurrentKey());
+				sql  = "DELETE FROM table WHERE name = '" + tempStr + "'";
+				tables.Remove(deletedTables.CurrentKey(), deletedTable, deletedData);
+				//deletedTables.Insert(deletedTable, deletedData);
+			}
+		}
+
 		return true;
+
 }
 
 bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
@@ -298,36 +382,11 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 			distincts.push_back(0);
 		}
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
-		if (tables.IsThere(key) != 1){
-			tables.Insert(key, *table);
+		if (insertedTables.IsThere(key) != 1){
+			insertedTables.Insert(key, *table);
 		}
-
-		sql = "INSERT INTO table VALUES('" + _table + "', 0, '" + _table + ".dat')";
-		char sql1[sql.length()];
-		strcpy(sql1, sql.c_str());
-
-		rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
-
-		if( rc != SQLITE_OK ){
-		  fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		  sqlite3_free(zErrMsg);
-		} else {
-		  fprintf(stdout, "Table created successfully\n");
-		}
-
-		for (int i = 0; i < _attributes.size(); i++) {
-			sql = "INSERT INTO attribute VALUES('" + _attributes[i] + "', '" + _attributeTypes[i] + "', 0, '" + _table + ")";
-			char sql2[sql.length()];
-			strcpy(sql2, sql.c_str());
-
-			rc = sqlite3_exec(db, sql2, callback, 0, &zErrMsg);
-
-			if( rc != SQLITE_OK ){
-			  fprintf(stderr, "SQL error: %s\n", zErrMsg);
-			  sqlite3_free(zErrMsg);
-			} else {
-			  fprintf(stdout, "Attribute created successfully\n");
-			}
+		else {
+			printf("Table is already present.");
 		}
 
 		return true;
@@ -335,25 +394,15 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 
 bool Catalog::DropTable(string& _table) {
 
-	int i;
-	string deletedTable;
-	Schema deletedData;
-	string sql;
-	Keyify<string> key(_table);
-
-	Schema schema = tables.Find(key);
-	vector<Attribute> atts = schema.GetAtts();
-	for(i = 0; i < atts.size(); i++)
-		//sql = "DELETE FROM attribute WHERE name = '" + atts[i] + "'";
-
-
-	if(tables.IsThere(key) == 1){
+		int i;
+		Keyify<string> key(_table);
 		Schema schema = tables.Find(key);
-	//sql  = "DELETE FROM table WHERE name = '" + _table + "'";
-	//tables.Remove(_table, deletedTable, deletedData);
-}
-return true;
-}
+
+		if(tables.IsThere(key) == 1){
+			deletedTables.Insert(key, schema);
+		}
+		return true;
+		}
 
 ostream& operator<<(ostream& _os, Catalog& _c) {
 	return _os;
