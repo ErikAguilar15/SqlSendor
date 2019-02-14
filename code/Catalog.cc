@@ -51,8 +51,9 @@ Catalog::Catalog(string& _fileName) {
 		}
 
 		char **table_results;
+		char **errMessage1 = 0;
 		int row, col;
-		sqlite3_get_table(db, "SELECT * FROM table", &table_results, &row, &col, errMessage);
+		sqlite3_get_table(db, "SELECT * FROM table", &table_results, &row, &col, errMessage1);
 
 
 }
@@ -72,16 +73,21 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		int rc;
 		int count = 0;
 		char *zErrMsg = 0;
+		Keyify<string> key(_table);
 
-if(tables.IsThere(_table) == 1){
-		rc = sqlite3_exec(db, "SELECT numTuples FROM " + _table, callbackCount, &count, &zErrMsg);
-		_noTuples = count;
-		return true;
-}else return false;
-		if (rc != SQLITE_OK) {
-        fprintf(stderr, "SQL error: %s\n", zErrMsg);
-        sqlite3_free(zErrMsg);
-    }
+		string sql = "SELECT numTuples FROM " + _table;
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
+
+		if(tables.IsThere(key) == 1){
+				rc = sqlite3_exec(db, sql1, callbackCount, &count, &zErrMsg);
+				_noTuples = count;
+				return true;
+		}else return false;
+				if (rc != SQLITE_OK) {
+		        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		        sqlite3_free(zErrMsg);
+		    }
 
 
 /*int i;
@@ -98,27 +104,32 @@ return true;
 
 void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 
-//UPDATE the numTuples
-int rc;
-char *zErrMsg = 0;
-int i;
-cin >> i;
-i = _noTuples;
+		//UPDATE the numTuples
+		int rc;
+		char *zErrMsg = 0;
+		int i;
+		cin >> i;
+		i = _noTuples;
 
-rc = sqlite3_exec(db, "UPDATE " + _table + "SET numTuples = " + _noTuples, callbackCount, &count, &zErrMsg);
+		string sql = "UPDATE " + _table + "SET numTuples = " + to_string(_noTuples);
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
 
-if (rc != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		sqlite3_free(zErrMsg);
-}
+		rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
+
+		if (rc != SQLITE_OK) {
+				fprintf(stderr, "SQL error: %s\n", zErrMsg);
+				sqlite3_free(zErrMsg);
+		}
 
 }
 
 bool Catalog::GetDataFile(string& _table, string& _path) {
 
+	Keyify<string> key(_table);
 	//First check if table name matches
-	if(tables.IsThere(_table) == 1){
-		Schema schema = tables.Find(_table);
+	if(tables.IsThere(key) == 1){
+		Schema schema = tables.Find(key);
 		//string path = _table + ".dat";
 		//path = _path;
 		return true;
@@ -144,16 +155,21 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 		int rc;
 		int count = 0;
 		char *zErrMsg = 0;
+		Keyify<string> key(_table);
 
-if(tables.IsThere(_table) == 1){
-		rc = sqlite3_exec(db, "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + _table, callbackCount, &count, &zErrMsg);
-		_noDistinct = count;
-		return true;
-}else return false;
-		if (rc != SQLITE_OK) {
-        fprintf(stderr, "SQL error: %s\n", zErrMsg);
-        sqlite3_free(zErrMsg);
-    }
+		string sql = "SELECT distinctVal FROM " + _attribute + "WHERE tableName = " + _table;
+		char sql1[sql.length()];
+		strcpy(sql1, sql.c_str());
+
+		if(tables.IsThere(key) == 1){
+				rc = sqlite3_exec(db, sql1 , callbackCount, 0, &zErrMsg);
+				_noDistinct = count;
+				return true;
+		}else return false;
+				if (rc != SQLITE_OK) {
+		        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		        sqlite3_free(zErrMsg);
+		    }
 
 /*int i;
 _noDistinct = 0;
@@ -187,11 +203,7 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 				fprintf(stderr, "SQL error: %s\n", zErrMsg);
 				sqlite3_free(zErrMsg);
 		}
-<<<<<<< HEAD
 }
-=======
-		} 
->>>>>>> 97a8ce5f60a17ddda4c8ca2244911674bbbc458c
 
 void Catalog::GetTables(vector<string>& _tables) {
 
