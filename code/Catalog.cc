@@ -172,6 +172,21 @@ _noDistinct = 0;
 
 void Catalog::SetNoDistinct(string& _table, string& _attribute,
 	unsigned int& _noDistinct) {
+
+		//UPDATE the numDistinct
+		int rc;
+		char *zErrMsg = 0;
+		int i;
+		cin >> i;
+		i = _noDistinct;
+
+		rc = sqlite3_exec(db, "UPDATE " + _attribute + "SET distinctVal = " + _noDistinct, callbackCount, &count, &zErrMsg);
+
+		if (rc != SQLITE_OK) {
+				fprintf(stderr, "SQL error: %s\n", zErrMsg);
+				sqlite3_free(zErrMsg);
+				return false;
+		} else return true;
 }
 
 void Catalog::GetTables(vector<string>& _tables) {
