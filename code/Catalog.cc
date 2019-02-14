@@ -174,15 +174,35 @@ bool Catalog::Save() {
 			Schema tempSchema = deletedTables.CurrentData();
 			Keyify<string> deletedTable(tempStr);
 			vector<Attribute> atts = tempSchema.GetAtts();
-			for(int i = 0; i < atts.size(); i++)
+			for(int i = 0; i < atts.size(); i++) {
 				sql = "DELETE FROM attribute WHERE name = '" + atts[i].name + "'";
+				char sql1[sql.length()];
+				strcpy(sql1, sql.c_str());
+				rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 
+				if( rc != SQLITE_OK ){
+					fprintf(stderr, "SQL error: %s\n", zErrMsg);
+					sqlite3_free(zErrMsg);
+				} else {
+					fprintf(stdout, "Attribute deleted successfully\n");
+				}
+			}
 
 			if(tables.IsThere(deletedTables.CurrentKey()) == 1){
 				Schema schema = tables.Find(deletedTables.CurrentKey());
 				sql  = "DELETE FROM table WHERE name = '" + tempStr + "'";
+				char sql1[sql.length()];
+				strcpy(sql1, sql.c_str());
+				rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
 				tables.Remove(deletedTables.CurrentKey(), deletedTable, deletedData);
 				//deletedTables.Insert(deletedTable, deletedData);
+
+				if( rc != SQLITE_OK ){
+					fprintf(stderr, "SQL error: %s\n", zErrMsg);
+					sqlite3_free(zErrMsg);
+				} else {
+					fprintf(stdout, "Table deleted successfully\n");
+				}
 			}
 		}
 		deletedTables.Clear();
@@ -383,7 +403,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 			distincts.push_back(0);
 		}
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
-		if (insertedTables.IsThere(key) != 1){
+		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
 		}
 		else {
