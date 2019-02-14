@@ -185,6 +185,7 @@ bool Catalog::Save() {
 				//deletedTables.Insert(deletedTable, deletedData);
 			}
 		}
+		deletedTables.Clear();
 
 		return true;
 
