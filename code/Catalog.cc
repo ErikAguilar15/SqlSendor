@@ -433,7 +433,7 @@ bool Catalog::DropTable(string& _table) {
 			deletedTables.Insert(key, schema);
 			return true;
 		}
-		else return false
+		else return false;
 
 }
 
