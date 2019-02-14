@@ -28,7 +28,8 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 }
 
 static int callbackCount(void *count, int argc, char **argv, char **azColName) {
-		int *c = count;
+		int *c;
+		c* = count;
 		*c = atoi(argv[0]);
 		return 0;
 }
