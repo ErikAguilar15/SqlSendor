@@ -53,8 +53,46 @@ Catalog::Catalog(string& _fileName) {
 		char **table_results;
 		char **errMessage1 = 0;
 		int row, col;
-		sqlite3_get_table(db, "SELECT * FROM table", &table_results, &row, &col, errMessage1);
+		sqlite3_get_table(db, "SELECT name FROM table", &table_results, &row, &col, errMessage1);
 
+		for (int i = 0; i < row; i++) {
+			int attRow, attCol;
+			char **att_results;
+			char **type_results;
+			char **distinct_results;
+			vector<string> attributes, types;
+			vector<unsigned int> distincts;
+
+			string tableName = string(table_results[i]);
+
+			sql = "SELECT name FROM attribute WHERE tableName = '" + tableName + "'";
+			char sql1[sql.length()];
+			strcpy(sql1, sql.c_str());
+			sqlite3_get_table(db, sql1, &att_results, &attRow, &attCol, errMessage1);
+			for (int j = 0; j < attRow; j++) {
+				attributes.push_back(string(att_results[j]));
+			}
+
+			sql = "SELECT type FROM attribute WHERE tableName = '" + tableName + "'";
+			char sql2[sql.length()];
+			strcpy(sql2, sql.c_str());
+			sqlite3_get_table(db, sql2, &type_results, &attRow, &attCol, errMessage1);
+			for (int j = 0; j < attRow; j++) {
+				types.push_back(string(type_results[j]));
+			}
+
+			sql = "SELECT distinctVal FROM attribute WHERE tableName = '" + tableName + "'";
+			char sql3[sql.length()];
+			strcpy(sql3, sql.c_str());
+			sqlite3_get_table(db, sql3, &distinct_results, &attRow, &attCol, errMessage1);
+			for (int j = 0; j < attRow; j++) {
+				distincts.push_back(stoi(distinct_results[j]));
+			}
+
+			Keyify<string> key(tableName);
+			Schema *tempTable = new Schema(attributes, types, distincts);
+			tables.Insert(key, *tempTable);
+		}
 
 }
 
