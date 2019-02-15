@@ -161,7 +161,7 @@ bool Catalog::Save() {
 				}
 			}
 			else {
-				printf("Table is already present in database, therefore can't be saved.");
+				printf("Table: %s is already present in database, therefore can't be saved.\n", tempStr.c_str());
 			}
 			insertedTables.Advance();
 		}
@@ -229,7 +229,7 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 
 		if(tables.IsThere(key) == 1){
 				sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
-				_noTuples = stoi(table_results[0]);
+				_noTuples = atoi(table_results[0]);
 				return true;
 		}else return false;
 				if (rc != SQLITE_OK) {
@@ -259,6 +259,7 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 		cin >> i;
 		i = _noTuples;
 
+		Save();
 
 		printf("SET NUM TUPLES\n");
 		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples) + " WHERE name = '" + _table + "'";
@@ -340,7 +341,7 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 
 		if(tables.IsThere(key) == 1){
 				sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
-				_noDistinct = stoi(table_results[0]);
+				_noDistinct = atoi(table_results[0]);
 				return true;
 		}else return false;
 				if (rc != SQLITE_OK) {
@@ -372,8 +373,30 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 		Keyify<string> key(_table);
 
 		if (tables.IsThere(key)) {
+			Schema table = tables.Find(key);
+			vector<Attribute> atts = table.GetAtts();
+			vector<string> attributes, types;
+			vector<unsigned int> distincts;
+			for (int j = 0; j < atts.size(); j++) {
+				if (atts[j].name == _attribute) {
+					atts[j].noDistinct = _noDistinct;
+				}
+				attributes.push_back(atts[j].name);
+				if (atts[i].type == Integer) {
+					types.push_back("INTEGER");
+				}
+				else if (atts[i].type == Float) {
+					types.push_back("FLOAT");
+				}
+				else types.push_back("STRING");
+				distincts.push_back(atts[j].noDistinct);
+			}
+
+			Schema temp(attributes, types, distincts);
+			tables.Find(key).Swap(temp);
+
 			printf("SET NUM DISCTINCT\n");
-			string sql = "UPDATE attribute SET distinctVal = " + to_string(_noDistinct) + "WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
+			string sql = "UPDATE attribute SET distinctVal = " + to_string(_noDistinct) + " WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
 			char sql1[sql.length()];
 			strcpy(sql1, sql.c_str());
 
@@ -383,6 +406,29 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 					fprintf(stderr, "SQL error: %s\n", zErrMsg);
 					sqlite3_free(zErrMsg);
 			}
+		}
+		else if (insertedTables.IsThere(key)) {
+			Schema table = insertedTables.Find(key);
+			vector<Attribute> atts = table.GetAtts();
+			vector<string> attributes, types;
+			vector<unsigned int> distincts;
+			for (int j = 0; j < atts.size(); j++) {
+				if (atts[j].name == _attribute) {
+					atts[j].noDistinct = _noDistinct;
+				}
+				attributes.push_back(atts[j].name);
+				if (atts[i].type == Integer) {
+					types.push_back("INTEGER");
+				}
+				else if (atts[i].type == Float) {
+					types.push_back("FLOAT");
+				}
+				else types.push_back("STRING");
+				distincts.push_back(atts[j].noDistinct);
+			}
+
+			Schema temp(attributes, types, distincts);
+			insertedTables.Find(key).Swap(temp);
 		}
 
 }
@@ -453,7 +499,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
 			printf("Created Table.\n");
-			Save();
+			//Save();
 			return true;
 		}
 		else {
@@ -471,7 +517,7 @@ bool Catalog::DropTable(string& _table) {
 
 		if(tables.IsThere(key) == 1){
 			deletedTables.Insert(key, schema);
-			Save();
+			//Save();
 			return true;
 		}
 		else return false;
