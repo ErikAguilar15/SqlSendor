@@ -222,6 +222,7 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		char *zErrMsg = 0;
 		Keyify<string> key(_table);
 
+		printf("GET NUM TUPLES\n");
 		string sql = "SELECT numTuples FROM tables WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
@@ -258,6 +259,8 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 		cin >> i;
 		i = _noTuples;
 
+
+		printf("SET NUM TUPLES\n");
 		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples) + " WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
@@ -278,6 +281,7 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 	char **errMessage1 = 0;
 	int row, col;
 
+	printf("GET DATA FILE\n");
 	//First check if table name matches
 	if(tables.IsThere(key) == 1){
 		string sql = "SELECT fileLoc FROM tables WHERE name = '" + _table + "'";
@@ -302,6 +306,7 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 	int rc;
 	char *zErrMsg = 0;
 
+	printf("SET DATA FILE\n");
 	string sql = "UPDATE tables SET fileLoc = '" + _path + "' WHERE name = '" + _table + "'";
 	char sql1[sql.length()];
 	strcpy(sql1, sql.c_str());
@@ -328,6 +333,7 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 		int row, col;
 		Keyify<string> key(_table);
 
+		printf("GET NUM DISTINCT\n");
 		string sql = "SELECT distinctVal FROM attribute WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
@@ -363,16 +369,20 @@ void Catalog::SetNoDistinct(string& _table, string& _attribute,
 		int i;
 		cin >> i;
 		i = _noDistinct;
+		Keyify<string> key(_table);
 
-		string sql = "UPDATE attribute SET distinctVal = " + to_string(_noDistinct) + "WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
-		char sql1[sql.length()];
-		strcpy(sql1, sql.c_str());
+		if (tables.IsThere(key)) {
+			printf("SET NUM DISCTINCT\n");
+			string sql = "UPDATE attribute SET distinctVal = " + to_string(_noDistinct) + "WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
+			char sql1[sql.length()];
+			strcpy(sql1, sql.c_str());
 
-		rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
+			rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
 
-		if (rc != SQLITE_OK) {
-				fprintf(stderr, "SQL error: %s\n", zErrMsg);
-				sqlite3_free(zErrMsg);
+			if (rc != SQLITE_OK) {
+					fprintf(stderr, "SQL error: %s\n", zErrMsg);
+					sqlite3_free(zErrMsg);
+			}
 		}
 
 }
@@ -443,6 +453,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
 			printf("Created Table.\n");
+			Save();
 			return true;
 		}
 		else {
@@ -460,6 +471,7 @@ bool Catalog::DropTable(string& _table) {
 
 		if(tables.IsThere(key) == 1){
 			deletedTables.Insert(key, schema);
+			Save();
 			return true;
 		}
 		else return false;
