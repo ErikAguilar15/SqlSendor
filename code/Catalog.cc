@@ -17,8 +17,8 @@ sqlite3 *db;
 EfficientMap<Keyify<string>, Schema> tables;
 EfficientMap<Keyify<string>, Schema> insertedTables;
 EfficientMap<Keyify<string>, Schema> deletedTables;
-string tName = NULL;
-int no_tables = 0;
+//string tName = NULL;
+//int no_tables = 0;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 		int i;
