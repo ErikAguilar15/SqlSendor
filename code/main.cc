@@ -50,6 +50,7 @@ int main () {
 	Catalog c(dbFile);
 
 	c.CreateTable(table, attributes, types);
+	c.Save();
 
 	cout << c << endl;
 

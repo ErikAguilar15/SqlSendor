@@ -120,7 +120,7 @@ bool Catalog::Save() {
 			vector<unsigned int> distincts;
 
 			if (tables.IsThere(insertedTables.CurrentKey()) != 1){
-				sql = "INSERT INTO table VALUES('" + tempStr + "', 0, '" + tempStr + ".dat')";
+				sql = "INSERT INTO tables VALUES('" + tempStr + "', 0, '" + tempStr + ".dat')";
 				char sql1[sql.length()];
 				strcpy(sql1, sql.c_str());
 
@@ -163,6 +163,7 @@ bool Catalog::Save() {
 			else {
 				printf("Table is already present in database, therefore can't be saved.");
 			}
+			insertedTables.Advance();
 		}
 		tables.SuckUp(insertedTables);
 
@@ -190,7 +191,7 @@ bool Catalog::Save() {
 
 			if(tables.IsThere(deletedTables.CurrentKey()) == 1){
 				Schema schema = tables.Find(deletedTables.CurrentKey());
-				sql  = "DELETE FROM table WHERE name = '" + tempStr + "'";
+				sql  = "DELETE FROM tables WHERE name = '" + tempStr + "'";
 				char sql1[sql.length()];
 				strcpy(sql1, sql.c_str());
 				rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
@@ -204,6 +205,7 @@ bool Catalog::Save() {
 					fprintf(stdout, "Table deleted successfully\n");
 				}
 			}
+			deletedTables.Advance();
 		}
 		deletedTables.Clear();
 
@@ -220,7 +222,7 @@ bool Catalog::GetNoTuples(string& _table, unsigned int& _noTuples) {
 		char *zErrMsg = 0;
 		Keyify<string> key(_table);
 
-		string sql = "SELECT numTuples FROM table WHERE name = '" + _table + "'";
+		string sql = "SELECT numTuples FROM tables WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
@@ -256,7 +258,7 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 		cin >> i;
 		i = _noTuples;
 
-		string sql = "UPDATE " + _table + "SET numTuples = " + to_string(_noTuples);
+		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples + " WHERE name = '" + _table + "'");
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
@@ -278,7 +280,7 @@ bool Catalog::GetDataFile(string& _table, string& _path) {
 
 	//First check if table name matches
 	if(tables.IsThere(key) == 1){
-		string sql = "SELECT fileLoc FROM table WHERE name = '" + _table + "'";
+		string sql = "SELECT fileLoc FROM tables WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 		sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
@@ -300,7 +302,7 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 	int rc;
 	char *zErrMsg = 0;
 
-	string sql = "UPDATE table SET fileLoc = '" + _path + "' WHERE name = '" + _table + "'";
+	string sql = "UPDATE tables SET fileLoc = '" + _path + "' WHERE name = '" + _table + "'";
 	char sql1[sql.length()];
 	strcpy(sql1, sql.c_str());
 
@@ -310,7 +312,7 @@ void Catalog::SetDataFile(string& _table, string& _path) {
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
 	} else {
-		fprintf(stdout, "Attribute created successfully\n");
+		fprintf(stdout, "Updated data file\n");
 	}
 
 }
@@ -426,13 +428,13 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		char *zErrMsg = 0;
 
 		//Check to make sure attributes are unique
-		vector<string> atts(_attributes);
+		/*vector<string> atts(_attributes);
 		sort(atts.begin(), atts.end());
 		auto it = unique( atts.begin(), atts.end() );
 		if (it == atts.end()) {
 			printf("Duplicate attributes.");
 			return false;
-		}
+		}*/
 
 		for (int i = 0; i < _attributes.size(); i++) {
 			distincts.push_back(0);
@@ -440,10 +442,11 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
 		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
+			printf("Created Table.\n");
 			return true;
 		}
 		else {
-			printf("Table is already present.");
+			printf("Table is already present.\n");
 			return false;
 		}
 
