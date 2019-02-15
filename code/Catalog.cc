@@ -258,7 +258,7 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 		cin >> i;
 		i = _noTuples;
 
-		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples + " WHERE name = '" + _table + "'");
+		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples) + " WHERE name = '" + _table + "'";
 		char sql1[sql.length()];
 		strcpy(sql1, sql.c_str());
 
