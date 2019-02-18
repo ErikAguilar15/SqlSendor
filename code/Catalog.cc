@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
+#include <cstdlib>
+#include <cstdio>
 #include <vector>
 
 #include "Schema.h"
@@ -13,8 +15,11 @@
 
 using namespace std;
 
+using Records = vector<string>;
+
 sqlite3 *db;
 EfficientMap<Keyify<string>, Schema> tables;
+EfficientMap<Keyify<string>, Keyify<unsigned int> > tupleMap;
 EfficientMap<Keyify<string>, Schema> insertedTables;
 EfficientMap<Keyify<string>, Schema> deletedTables;
 //string tName = NULL;
@@ -35,6 +40,15 @@ static int callbackCount(void *count, int argc, char **argv, char **azColName) {
 		return 0;
 }
 
+static int callbackT(void *p_data, int num_fields, char **p_fields, char **p_col_names)
+{
+		Records* records = static_cast<Records*>(p_data);
+		for (int i = 0; i < num_fields; i++) {
+			records->push_back(p_fields[i]);
+		}
+		return 0;
+}
+
 Catalog::Catalog(string& _fileName) {
 		char *errMessage = 0;
 		int rc;
@@ -52,41 +66,43 @@ Catalog::Catalog(string& _fileName) {
 			fprintf(stderr, "Opened database successfully\n");
 		}
 
-		char **table_results;
+		Records records;
 		char **errMessage1 = 0;
-		int row, col;
-		sqlite3_get_table(db, "SELECT name FROM table", &table_results, &row, &col, errMessage1);
+		sqlite3_exec(db, "SELECT name FROM tables", callbackT, &records, errMessage1);
 
-		for (int i = 0; i < row; i++) {
+		for (int i = 0; i < records.size(); i++) {
 			int attRow, attCol;
-			char **att_results;
-			char **type_results;
-			char **distinct_results;
+			Records att_results;
+			Records type_results;
+			Records distinct_results;
 			vector<string> attributes, types;
 			vector<unsigned int> distincts;
 
-			string tableName = string(table_results[i]);
+			string tableName = records[i];
+			cout << tableName << " ";
 
 			sql = "SELECT name FROM attribute WHERE tableName = '" + tableName + "'";
 			char sql1[sql.length()];
 			strcpy(sql1, sql.c_str());
-			sqlite3_get_table(db, sql1, &att_results, &attRow, &attCol, errMessage1);
+			sqlite3_exec(db, sql1, callbackT, &att_results, errMessage1);
 			for (int j = 0; j < attRow; j++) {
-				attributes.push_back(string(att_results[j]));
+				cout << att_results[j] << " ";
+				attributes.push_back(att_results[j]);
 			}
 
 			sql = "SELECT type FROM attribute WHERE tableName = '" + tableName + "'";
 			char sql2[sql.length()];
 			strcpy(sql2, sql.c_str());
-			sqlite3_get_table(db, sql2, &type_results, &attRow, &attCol, errMessage1);
+			sqlite3_exec(db, sql2, callbackT, &type_results, errMessage1);
 			for (int j = 0; j < attRow; j++) {
-				types.push_back(string(type_results[j]));
+				cout << type_results[j] << " ";
+				types.push_back(type_results[j]);
 			}
 
 			sql = "SELECT distinctVal FROM attribute WHERE tableName = '" + tableName + "'";
 			char sql3[sql.length()];
 			strcpy(sql3, sql.c_str());
-			sqlite3_get_table(db, sql3, &distinct_results, &attRow, &attCol, errMessage1);
+			sqlite3_exec(db, sql3, callbackT, &distinct_results, errMessage1);
 			for (int j = 0; j < attRow; j++) {
 				distincts.push_back(stoi(distinct_results[j]));
 			}
@@ -109,6 +125,8 @@ bool Catalog::Save() {
 		int rc;
 		string sql;
 		char *zErrMsg = 0;
+
+		rc = sqlite3_exec(db, "DELETE FROM tables WHERE name = ''", callback, 0, &zErrMsg);
 
 		//Saving inserted Tables
 		insertedTables.MoveToStart();
@@ -209,6 +227,20 @@ bool Catalog::Save() {
 		}
 		deletedTables.Clear();
 
+		//Set number of TUPLES
+		tupleMap.MoveToStart();
+		for (int i = 0; i < tupleMap.Length(); i++) {
+
+			string tempStr = deletedTables.CurrentKey();
+			string nt = to_string(tupleMap.CurrentData());
+			sql  = "UPDATE tables SET numTuples = " + nt + " WHERE name = '" + tempStr + "'";
+			char sql1[sql.length()];
+			strcpy(sql1, sql.c_str());
+			rc = sqlite3_exec(db, sql1, callback, 0, &zErrMsg);
+
+			tupleMap.Advance();
+		}
+
 		return true;
 
 }
@@ -258,19 +290,29 @@ void Catalog::SetNoTuples(string& _table, unsigned int& _noTuples) {
 		int i;
 		cin >> i;
 		i = _noTuples;
+		Keyify<string> key(_table);
+		Keyify<string> removedKey(_table);
+		Keyify<unsigned int> data(_noTuples);
+		Keyify<unsigned int> removedData(_noTuples);
 
-		Save();
+		if(tables.IsThere(key)) {
+			tupleMap.Remove(key, removedKey, removedData);
+			tupleMap.Insert(key, data);
+			printf("SET NUM TUPLES\n");
+			string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples) + " WHERE name = '" + _table + "'";
+			char sql1[sql.length()];
+			strcpy(sql1, sql.c_str());
 
-		printf("SET NUM TUPLES\n");
-		string sql = "UPDATE tables SET numTuples = " + to_string(_noTuples) + " WHERE name = '" + _table + "'";
-		char sql1[sql.length()];
-		strcpy(sql1, sql.c_str());
+			rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
 
-		rc = sqlite3_exec(db, sql1, callbackCount, 0, &zErrMsg);
-
-		if (rc != SQLITE_OK) {
-				fprintf(stderr, "SQL error: %s\n", zErrMsg);
-				sqlite3_free(zErrMsg);
+			if (rc != SQLITE_OK) {
+			fprintf(stderr, "SQL error: %s\n", zErrMsg);
+			sqlite3_free(zErrMsg);
+			}
+		}
+		else if (insertedTables.IsThere(key)) {
+			tupleMap.Remove(key, removedKey, removedData);
+			tupleMap.Insert(key, data);
 		}
 
 }
@@ -335,19 +377,18 @@ bool Catalog::GetNoDistinct(string& _table, string& _attribute,
 		Keyify<string> key(_table);
 
 		printf("GET NUM DISTINCT\n");
-		string sql = "SELECT distinctVal FROM attribute WHERE tableName = '" + _table + "' AND name = '" + _attribute + "'";
-		char sql1[sql.length()];
-		strcpy(sql1, sql.c_str());
+		if (tables.IsThere(key)) {
+			Schema tempSchem = tables.Find(key);
+			vector<Attribute> atts = tempSchem.GetAtts();
+			for (int i = 0; i < atts.size(); i++) {
+				if (atts[i].name == _attribute) {
+					_noDistinct = atts[i].noDistinct;
+				}
+			}
+		}
 
-		if(tables.IsThere(key) == 1){
-				sqlite3_get_table(db, sql1, &table_results, &row, &col, errMessage1);
-				_noDistinct = atoi(table_results[0]);
-				return true;
-		}else return false;
-				if (rc != SQLITE_OK) {
-		        fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		        sqlite3_free(zErrMsg);
-		    }
+
+
 
 /*int i;
 _noDistinct = 0;
@@ -481,6 +522,7 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		string sql;
 		vector<unsigned int> distincts;
 		Keyify<string> key(_table);
+		Keyify<unsigned int> dist(0);
 		char *zErrMsg = 0;
 
 		//Check to make sure attributes are unique
@@ -498,8 +540,9 @@ bool Catalog::CreateTable(string& _table, vector<string>& _attributes,
 		Schema *table = new Schema(_attributes, _attributeTypes, distincts);
 		if (tables.IsThere(key) != 1){
 			insertedTables.Insert(key, *table);
+			tupleMap.Insert(key, dist);
 			printf("Created Table.\n");
-			//Save();
+			Save();
 			return true;
 		}
 		else {
@@ -517,7 +560,7 @@ bool Catalog::DropTable(string& _table) {
 
 		if(tables.IsThere(key) == 1){
 			deletedTables.Insert(key, schema);
-			//Save();
+			Save();
 			return true;
 		}
 		else return false;
