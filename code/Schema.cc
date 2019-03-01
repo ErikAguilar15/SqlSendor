@@ -144,6 +144,11 @@ int Schema::Project(vector<int>& _attsToKeep) {
 	return 0;
 }
 
+void Schema::Clear() {
+	atts.clear();
+}
+
+
 ostream& operator<<(ostream& _os, Schema& _c) {
 	_os << "(";
 	for(int i=0; i<_c.atts.size(); i++) {

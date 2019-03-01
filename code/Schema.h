@@ -84,6 +84,8 @@ public:
 	// call only after Index returns valid result
 	Type FindType(string& _attName);
 
+	void Clear();
+
 	// operator for printing
 	friend ostream& operator<<(ostream& _os, Schema& _c);
 };

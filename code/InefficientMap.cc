@@ -1,11 +1,11 @@
 #ifndef _INEFFICIENT_MAP_C
 #define _INEFFICIENT_MAP_C
-
+#include <iostream>
 #include "InefficientMap.h"
 #include "Keyify.cc"
 
 #include <cstdlib>
-#include <iostream>
+
 
 using namespace std;
 

@@ -1,19 +1,18 @@
 #ifndef _EFFICIENT_MAP_C
 #define _EFFICIENT_MAP_C
-
+#include <iostream>
 #include "EfficientMap.h"
 #include "Keyify.cc"
-//#include "Keyify.h"
 
 #include <cstdlib>
-#include <iostream>
+
 
 using namespace std;
 
 
 // basic constructor function
 template <class Key, class Data>
-EfficientMap <Key, Data> :: EfficientMap () {
+EfficientMap <Key, Data> :: EfficientMap() {
 	// allocate space for the header
 	list = new Header;
 
